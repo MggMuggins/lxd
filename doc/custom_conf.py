@@ -283,8 +283,8 @@ if not os.path.islink('.sphinx/_static/swagger-ui/swagger-ui.css'):
 
 if ('LOCAL_SPHINX_BUILD' in os.environ and
     os.environ['LOCAL_SPHINX_BUILD'] == 'True'):
-    path = str(subprocess.check_output(['go', 'env', 'GOPATH'], encoding='utf-8').strip())
-    lxc = os.path.join(path, 'bin', 'lxc')
+    path = str(subprocess.check_output(['go', 'env', 'GOBIN'], encoding='utf-8').strip())
+    lxc = os.path.join(path, 'lxc')
     if os.path.isfile(lxc):
         print('Using ' + lxc + ' to generate man pages.')
     else:
