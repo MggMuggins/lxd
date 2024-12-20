@@ -3778,6 +3778,11 @@ func (d *lxc) delete(force bool) error {
 		return err
 	}
 
+	err := d.checkRootVolumeNotInUse()
+	if err != nil {
+		return err
+	}
+
 	// Wait for any file operations to complete.
 	// This is required so we can actually unmount the container and delete it.
 	if !d.IsSnapshot() {
@@ -3785,7 +3790,7 @@ func (d *lxc) delete(force bool) error {
 	}
 
 	// Delete any persistent warnings for instance.
-	err := d.warningsDelete()
+	err = d.warningsDelete()
 	if err != nil {
 		return err
 	}
@@ -3890,6 +3895,11 @@ func (d *lxc) Rename(newName string, applyTemplateTrigger bool) error {
 
 	// Quick checks.
 	err = instancetype.ValidName(newName, d.IsSnapshot())
+	if err != nil {
+		return err
+	}
+
+	err = d.checkRootVolumeNotInUse()
 	if err != nil {
 		return err
 	}
