@@ -841,7 +841,6 @@ func (d *disk) startContainer() (*deviceConfig.RunConfig, error) {
 				return nil, err
 			}
 
-			// Only custom volumes can be attached currently.
 			storageProjectName, err := project.StorageVolumeProject(d.state.DB.Cluster, d.inst.Project().Name, dbVolumeType)
 			if err != nil {
 				return nil, err
