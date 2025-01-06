@@ -1874,6 +1874,7 @@ func (d *disk) storagePoolVolumeAttachShift(projectName, poolName, volumeName st
 			return err
 		}
 	}
+	fmt.Println(poolVolumePut.Config["volatile.idmap.last"])
 
 	var nextIdmap *idmap.IdmapSet
 	nextJSONMap := "[]"
@@ -1903,6 +1904,7 @@ func (d *disk) storagePoolVolumeAttachShift(projectName, poolName, volumeName st
 	}
 
 	poolVolumePut.Config["volatile.idmap.next"] = nextJSONMap
+	fmt.Println(nextJSONMap)
 
 	if !nextIdmap.Equals(lastIdmap) {
 		d.logger.Debug("Shifting storage volume")

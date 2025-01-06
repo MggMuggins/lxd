@@ -404,6 +404,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -534,12 +535,17 @@ func shiftACLType(path string, aclType int, shiftIDs func(uid int64, gid int64) 
 		}
 
 		update = true
+
+		fmt.Printf("Shifting %q type %x from %d to %d\n", path, tag, idp, newID)
 	}
 
 	// Update the on-disk ACLs to match
 	if update {
+		fmt.Printf("aclType %x\n", aclType)
+
 		ret, err := C.acl_set_file(cpath, C.uint(aclType), acl)
 		if ret < 0 {
+			debug.PrintStack()
 			return fmt.Errorf("%s - Failed to change ACLs on %s", err, path)
 		}
 	}
