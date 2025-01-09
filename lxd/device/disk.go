@@ -1632,6 +1632,8 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 
 	srcPath := storageDrivers.GetVolumeMountPath(d.config["pool"], volumeType, volStorageName)
 
+	logger.Error("mountinfo for device", logger.Ctx{"instance": d.inst.Name(), "device": d.name, "diskPath": mountInfo.DiskPath, "srcPath": srcPath})
+
 	if d.inst.Type() == instancetype.Container {
 		if dbVolume.ContentType != cluster.StoragePoolVolumeContentTypeNameFS {
 			return nil, "", nil, fmt.Errorf("Only filesystem volumes are supported for containers")
@@ -1887,7 +1889,9 @@ func (d *disk) storagePoolVolumeAttachShift(projectName, poolName, volumeName st
 		// Get the container's idmap.
 		if c.IsRunning() {
 			nextIdmap, err = c.CurrentIdmap()
+			fmt.Printf("Got current IDmap from %q\n", d.inst.Name())
 		} else {
+			fmt.Printf("Got next IDmap from %q\n", d.inst.Name())
 			nextIdmap, err = c.NextIdmap()
 		}
 
