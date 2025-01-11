@@ -455,12 +455,21 @@ func (d *disk) validateConfig(instConf instance.ConfigReader) error {
 
 	// Check if validating a storage volume disk.
 	if d.config["pool"] != "" {
-		if d.config["shift"] != "" {
-			return fmt.Errorf(`The "shift" property cannot be used with custom storage volumes (set "security.shifted=true" on the volume instead)`)
-		}
-
 		if srcPathIsAbs {
 			return fmt.Errorf("Storage volumes cannot be specified as absolute paths")
+		}
+
+		volumeType, dbVolumeType, _, volumeName, err := storagePools.DiskVolumeSourceParse(d.config["source"])
+		if err != nil {
+			return err
+		}
+
+		if d.config["shift"] != "" && dbVolumeType == cluster.StoragePoolVolumeTypeCustom {
+			return errors.New(`The "shift" property cannot be used with custom storage volumes (set "security.shifted=true" on the volume instead)`)
+		}
+
+		if d.config["shift"] != "" && dbVolumeType != cluster.StoragePoolVolumeTypeContainer {
+			return errors.New(`The "shift" property can only be used with container storage volumes`)
 		}
 
 		var dbCustomVolume *db.StorageVolume
@@ -475,11 +484,6 @@ func (d *disk) validateConfig(instConf instance.ConfigReader) error {
 
 			// Non-root volume validation.
 			if !instancetype.IsRootDiskDevice(d.config) {
-				volumeType, dbVolumeType, _, volumeName, err := storagePools.DiskVolumeSourceParse(d.config["source"])
-				if err != nil {
-					return err
-				}
-
 				if d.inst != nil {
 					instVolType, err := storagePools.InstanceTypeToVolumeType(d.inst.Type())
 					if err != nil {
