@@ -1588,7 +1588,6 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 	// storage volume are:
 	// - <volume_name>
 	// - <type>/<volume_name>
-	// Currently, <type> must either be empty or "custom".
 	// We do not yet support instance mounts.
 	if filepath.IsAbs(d.config["source"]) {
 		return nil, "", nil, fmt.Errorf(`When the "pool" property is set "source" must specify the name of a volume, not a path`)
@@ -1599,7 +1598,6 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 		return nil, "", nil, err
 	}
 
-	// Only custom volumes can be attached currently.
 	storageProjectName, err := project.StorageVolumeProject(d.state.DB.Cluster, d.inst.Project().Name, dbVolumeType)
 	if err != nil {
 		return nil, "", nil, err
