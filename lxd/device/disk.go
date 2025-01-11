@@ -1630,6 +1630,10 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 
 	srcPath := storageDrivers.GetVolumeMountPath(d.config["pool"], volumeType, volStorageName)
 
+	if dbVolumeType == cluster.StoragePoolVolumeTypeContainer {
+		srcPath = filepath.Join(srcPath, "rootfs")
+	}
+
 	logger.Error("mountinfo for device", logger.Ctx{"instance": d.inst.Name(), "device": d.name, "diskPath": mountInfo.DiskPath, "srcPath": srcPath})
 
 	if d.inst.Type() == instancetype.Container {
