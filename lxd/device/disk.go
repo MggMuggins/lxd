@@ -837,7 +837,7 @@ func (d *disk) startContainer() (*deviceConfig.RunConfig, error) {
 			ownerShift = deviceConfig.MountOwnerShiftDynamic
 		}
 
-		// If ownerShift is none and pool is specified then check whether the pool itself
+		// If ownerShift is none and pool is specified then check whether the volume
 		// has owner shifting enabled, and if so enable shifting on this device too.
 		if ownerShift == deviceConfig.MountOwnerShiftNone && d.config["pool"] != "" {
 			_, dbVolumeType, _, volumeName, err := storagePools.DiskVolumeSourceParse(d.config["source"])
@@ -1880,6 +1880,14 @@ func (d *disk) storagePoolVolumeAttachShift(projectName, poolName, volumeName st
 	}
 	fmt.Println(poolVolumePut.Config["volatile.idmap.last"])
 
+	// Only custom volumes can use security.shifted.
+	// Custom volumes are not shifted by default, so the on-disk IDs will be the
+	// unprivileged IDs (100000, etc) when security.shifted is false.
+	// If security.shifted is true, it means that the user will mount the volume
+	// in more than one container. In order to allow the two containers to have
+	// different idmaps (see security.idmap.isolated), the on-disk IDs need to
+	// be mapped to the host IDs so that both idmapped mounts map the IDs the
+	// way the user expects.
 	var nextIdmap *idmap.IdmapSet
 	nextJSONMap := "[]"
 	if shared.IsFalseOrEmpty(poolVolumePut.Config["security.shifted"]) {
