@@ -187,7 +187,9 @@ func VolumeContentTypeNameToContentType(contentTypeName string) (int, error) {
 }
 
 // DiskVolumeSourceParse parses a disk device's `source` property when it refers to a
-// storage volume.
+// storage volume. The only syntactically valid ways of specifying a storage volume are:
+// - <volume_name> (type `custom`)
+// - <type>/<volume_name>
 func DiskVolumeSourceParse(source string) (volType drivers.VolumeType, dbVolType int, volTypeName string, volName string, err error) {
 	source = filepath.Clean(source)
 
