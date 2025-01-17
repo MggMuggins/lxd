@@ -1583,16 +1583,15 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 
 	var mountInfo *storagePools.MountInfo
 
+	if filepath.IsAbs(d.config["source"]) {
+		return nil, "", nil, fmt.Errorf(`When the "pool" property is set "source" must specify the name of a volume, not a path`)
+	}
+
 	// Deal with mounting storage volumes created via the storage api. Extract the name of the storage volume
 	// that we are supposed to attach. We assume that the only syntactically valid ways of specifying a
 	// storage volume are:
 	// - <volume_name>
 	// - <type>/<volume_name>
-	// We do not yet support instance mounts.
-	if filepath.IsAbs(d.config["source"]) {
-		return nil, "", nil, fmt.Errorf(`When the "pool" property is set "source" must specify the name of a volume, not a path`)
-	}
-
 	volumeType, dbVolumeType, volumeTypeName, volumeName, err := storagePools.DiskVolumeSourceParse(d.config["source"])
 	if err != nil {
 		return nil, "", nil, err
