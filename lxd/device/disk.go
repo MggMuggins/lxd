@@ -1888,6 +1888,7 @@ func (d *disk) storagePoolVolumeAttachShift(projectName, poolName, volumeName st
 	// different idmaps (see security.idmap.isolated), the on-disk IDs need to
 	// be mapped to the host IDs so that both idmapped mounts map the IDs the
 	// way the user expects.
+	// Therefore, when security.shifted is false/unset, nextIdmap is nil.
 	var nextIdmap *idmap.IdmapSet
 	nextJSONMap := "[]"
 	if shared.IsFalseOrEmpty(poolVolumePut.Config["security.shifted"]) {
