@@ -1630,6 +1630,7 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 
 	srcPath := storageDrivers.GetVolumeMountPath(d.config["pool"], volumeType, volStorageName)
 
+	// Only expose the rootfs, not backup.yaml and metadata.yaml
 	if dbVolumeType == cluster.StoragePoolVolumeTypeContainer {
 		srcPath = filepath.Join(srcPath, "rootfs")
 	}
