@@ -883,26 +883,30 @@ func (d *disk) startContainer() (*deviceConfig.RunConfig, error) {
 
 		// If ownerShift is none and pool is specified then check whether the volume
 		// has owner shifting enabled, and if so enable shifting on this device too.
-		if ownerShift == deviceConfig.MountOwnerShiftNone && d.config["pool"] != "" {
+		if d.config["pool"] != "" {
 			volumeName, _, dbVolumeType, _, err := d.sourceVolumeFields()
 			if err != nil {
 				return nil, err
 			}
 
-			instProj := d.inst.Project()
-			storageProjectName := project.StorageVolumeProjectFromRecord(&instProj, dbVolumeType)
+			isReadOnly = isReadOnly || shared.IsSnapshot(volumeName)
 
-			var dbVolume *db.StorageVolume
-			err = d.state.DB.Cluster.Transaction(context.TODO(), func(ctx context.Context, tx *db.ClusterTx) error {
-				dbVolume, err = tx.GetStoragePoolVolume(ctx, d.pool.ID(), storageProjectName, dbVolumeType, volumeName, true)
-				return err
-			})
-			if err != nil {
-				return nil, err
-			}
+			if ownerShift == deviceConfig.MountOwnerShiftNone {
+				instProj := d.inst.Project()
+				storageProjectName := project.StorageVolumeProjectFromRecord(&instProj, dbVolumeType)
 
-			if shared.IsTrue(dbVolume.Config["security.shifted"]) {
-				ownerShift = deviceConfig.MountOwnerShiftDynamic
+				var dbVolume *db.StorageVolume
+				err = d.state.DB.Cluster.Transaction(context.TODO(), func(ctx context.Context, tx *db.ClusterTx) error {
+					dbVolume, err = tx.GetStoragePoolVolume(ctx, d.pool.ID(), storageProjectName, dbVolumeType, volumeName, true)
+					return err
+				})
+				if err != nil {
+					return nil, err
+				}
+
+				if shared.IsTrue(dbVolume.Config["security.shifted"]) {
+					ownerShift = deviceConfig.MountOwnerShiftDynamic
+				}
 			}
 		}
 
@@ -1037,6 +1041,8 @@ func (d *disk) startVM() (*deviceConfig.RunConfig, error) {
 		opts = append(opts, "cache="+d.config["io.cache"])
 	}
 
+	isReadOnly := shared.IsTrue(d.config["readonly"])
+
 	// Add I/O limits if set.
 	var diskLimits *deviceConfig.DiskLimits
 	if d.config["limits.read"] != "" || d.config["limits.write"] != "" || d.config["limits.max"] != "" {
@@ -1138,6 +1144,8 @@ func (d *disk) startVM() (*deviceConfig.RunConfig, error) {
 					return nil, err
 				}
 
+				isReadOnly = isReadOnly || shared.IsSnapshot(volumeName)
+
 				// Derive the effective storage project name from the instance config's project.
 				instProj := d.inst.Project()
 				storageProjectName := project.StorageVolumeProjectFromRecord(&instProj, dbVolumeType)
@@ -1213,7 +1221,7 @@ func (d *disk) startVM() (*deviceConfig.RunConfig, error) {
 				mount.Opts = append(mount.Opts, d.detectVMPoolMountOpts()...)
 			}
 
-			if shared.IsTrue(d.config["readonly"]) {
+			if isReadOnly {
 				mount.Opts = append(mount.Opts, "ro")
 			}
 
