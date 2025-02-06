@@ -754,7 +754,12 @@ func (d *disk) Register() error {
 				return err
 			}
 
-			_, err = d.pool.MountInstance(diskInst, nil)
+			if shared.IsSnapshot(volumeName) {
+				_, err = d.pool.MountInstanceSnapshot(diskInst, nil)
+			} else {
+				_, err = d.pool.MountInstance(diskInst, nil)
+			}
+
 			if err != nil {
 				return err
 			}
@@ -1651,12 +1656,23 @@ func (d *disk) mountPoolVolume() (func(), string, *storagePools.MountInfo, error
 			return nil, "", nil, err
 		}
 
-		mountInfo, err = d.pool.MountInstance(diskInst, nil)
+		if shared.IsSnapshot(volumeName) {
+			mountInfo, err = d.pool.MountInstanceSnapshot(diskInst, nil)
+		} else {
+			mountInfo, err = d.pool.MountInstance(diskInst, nil)
+		}
+
 		if err != nil {
 			return nil, "", nil, err
 		}
 
-		revert.Add(func() { _ = d.pool.UnmountInstance(diskInst, nil) })
+		revert.Add(func() {
+			if shared.IsSnapshot(volumeName) {
+				_ = d.pool.UnmountInstanceSnapshot(diskInst, nil)
+			} else {
+				_ = d.pool.UnmountInstance(diskInst, nil)
+			}
+		})
 	} else {
 		mountInfo, err = d.pool.MountCustomVolume(storageProjectName, volumeName, nil)
 		if err != nil {
@@ -2155,7 +2171,11 @@ func (d *disk) postStop() error {
 				return err
 			}
 
-			err = d.pool.UnmountInstance(diskInst, nil)
+			if shared.IsSnapshot(volumeName) {
+				err = d.pool.UnmountInstanceSnapshot(diskInst, nil)
+			} else {
+				err = d.pool.UnmountInstance(diskInst, nil)
+			}
 		} else {
 			_, err = d.pool.UnmountCustomVolume(storageProjectName, volumeName, nil)
 		}
