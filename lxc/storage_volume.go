@@ -164,7 +164,7 @@ type cmdStorageVolumeAttach struct {
 
 func (c *cmdStorageVolumeAttach) command() *cobra.Command {
 	cmd := &cobra.Command{}
-	cmd.Use = usage("attach", i18n.G("[<remote>:]<pool> [<type>/]<volume> <instance> [<device name>] [<path>]"))
+	cmd.Use = usage("attach", i18n.G("[<remote>:]<pool> [<type>/]<volume>[/<snapshot>] <instance> [<device name>] [<path>]"))
 	cmd.Short = i18n.G("Attach new storage volumes to instances")
 	cmd.Long = cli.FormatSection(i18n.G("Description"), i18n.G(
 		`Attach new storage volumes to instances
@@ -286,7 +286,7 @@ type cmdStorageVolumeAttachProfile struct {
 
 func (c *cmdStorageVolumeAttachProfile) command() *cobra.Command {
 	cmd := &cobra.Command{}
-	cmd.Use = usage("attach-profile", i18n.G("[<remote:>]<pool> [<type>/]<volume> <profile> [<device name>] [<path>]"))
+	cmd.Use = usage("attach-profile", i18n.G("[<remote:>]<pool> [<type>/]<volume>[/<snapshot>] <profile> [<device name>] [<path>]"))
 	cmd.Short = i18n.G("Attach new storage volumes to profiles")
 	cmd.Long = cli.FormatSection(i18n.G("Description"), i18n.G(
 		`Attach new storage volumes to profiles
@@ -817,7 +817,7 @@ type cmdStorageVolumeDetach struct {
 
 func (c *cmdStorageVolumeDetach) command() *cobra.Command {
 	cmd := &cobra.Command{}
-	cmd.Use = usage("detach", i18n.G("[<remote>:]<pool> [<type>/]<volume> <instance> [<device name>]"))
+	cmd.Use = usage("detach", i18n.G("[<remote>:]<pool> [<type>/]<volume>[/<snapshot>] <instance> [<device name>]"))
 	cmd.Short = i18n.G("Detach storage volumes from instances")
 	cmd.Long = cli.FormatSection(i18n.G("Description"), i18n.G(
 		`Detach storage volumes from instances`))
@@ -922,7 +922,7 @@ type cmdStorageVolumeDetachProfile struct {
 
 func (c *cmdStorageVolumeDetachProfile) command() *cobra.Command {
 	cmd := &cobra.Command{}
-	cmd.Use = usage("detach-profile", i18n.G("[<remote:>]<pool> [<type>/]<volume> <profile> [<device name>]"))
+	cmd.Use = usage("detach-profile", i18n.G("[<remote:>]<pool> [<type>/]<volume>[/<snapshot>] <profile> [<device name>]"))
 	cmd.Short = i18n.G("Detach storage volumes from profiles")
 	cmd.Long = cli.FormatSection(i18n.G("Description"), i18n.G(
 		`Detach storage volumes from profiles`))
