@@ -1202,6 +1202,10 @@ func (d *disk) startVM() (*deviceConfig.RunConfig, error) {
 						Limits:  diskLimits,
 					}
 
+					if isReadOnly {
+						mount.Opts = append(mount.Opts, "ro")
+					}
+
 					if dbContentType == cluster.StoragePoolVolumeContentTypeISO {
 						mount.FSType = "iso9660"
 					}
