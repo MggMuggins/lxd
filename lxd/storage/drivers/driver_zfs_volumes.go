@@ -2155,6 +2155,7 @@ func (d *zfs) activateVolume(vol Volume) (bool, error) {
 		return true, nil
 	}
 
+	vol.ActivationRefCountIncrement()
 	return false, nil
 }
 
@@ -2162,6 +2163,12 @@ func (d *zfs) activateVolume(vol Volume) (bool, error) {
 func (d *zfs) deactivateVolume(vol Volume) (bool, error) {
 	if vol.contentType != ContentTypeBlock && !vol.IsBlockBacked() {
 		return false, nil // Nothing to do for non-block and non-block backed volumes.
+	}
+
+	refCount := vol.ActivationRefCountDecrement()
+	if refCount > 0 {
+		d.logger.Debug("Skipping deactivate as in use", logger.Ctx{"volName": vol.name, "refCount": refCount})
+		return false, ErrInUse
 	}
 
 	dataset := d.dataset(vol, false)
