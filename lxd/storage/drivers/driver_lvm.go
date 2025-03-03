@@ -103,6 +103,18 @@ func (d *lvm) Info() Info {
 	}
 }
 
+func (d *lvm) activationRefCountName(vol Volume) string {
+	// For non-thinpool volumes, activating an LV activates all of its snapshots
+	// (and vice versa). The activation ref counter should consider the parent
+	// and its snapshots to have the same activation.
+	if vol.IsSnapshot() && !d.usesThinpool() {
+		parentName, _, _ := api.GetParentAndSnapshotName(vol.Name())
+		return OperationLockName("Activate", vol.Pool(), vol.Type(), vol.ContentType(), parentName)
+	}
+
+	return d.common.activationRefCountName(vol)
+}
+
 // FillConfig populates the storage pool's configuration file with the default values.
 func (d *lvm) FillConfig() error {
 	// Set default thin pool name if not specified.
