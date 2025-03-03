@@ -56,6 +56,11 @@ func (d *common) defaultBlockVolumeSize() string {
 	return defaultBlockSize
 }
 
+// mountRefCountName returns the name to use for mount/unmount reference counting on a volume.
+func (d *common) mountRefCountName(vol Volume) string {
+	return vol.mountLockName()
+}
+
 // validatePool validates a pool config against common rules and optional driver specific rules.
 func (d *common) validatePool(config map[string]string, driverRules map[string]func(value string) error, volumeRules map[string]func(value string) error) error {
 	checkedFields := map[string]struct{}{}

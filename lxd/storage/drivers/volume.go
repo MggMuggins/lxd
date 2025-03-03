@@ -209,17 +209,17 @@ func (v Volume) MountLock() (locking.UnlockFunc, error) {
 
 // MountRefCountIncrement increments the mount ref counter for the volume and returns the new value.
 func (v Volume) MountRefCountIncrement() uint {
-	return refcount.Increment(v.mountLockName(), 1)
+	return refcount.Increment(v.driver.mountRefCountName(v), 1)
 }
 
 // MountRefCountDecrement decrements the mount ref counter for the volume and returns the new value.
 func (v Volume) MountRefCountDecrement() uint {
-	return refcount.Decrement(v.mountLockName(), 1)
+	return refcount.Decrement(v.driver.mountRefCountName(v), 1)
 }
 
 // MountInUse returns whether the volume has a mount ref counter >0.
 func (v Volume) MountInUse() bool {
-	return refcount.Get(v.mountLockName()) > 0
+	return refcount.Get(v.driver.mountRefCountName(v)) > 0
 }
 
 // EnsureMountPath creates the volume's mount path if missing, then sets the correct permission for the type.
