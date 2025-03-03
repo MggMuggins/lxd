@@ -103,6 +103,18 @@ func (d *lvm) Info() Info {
 	}
 }
 
+func (d *lvm) mountRefCountName(vol Volume) string {
+	// For non-thinpool volumes, activating an LV activates all of its snapshots
+	// (and vice versa). This means that LXD's mount refcount should consider
+	// a parent LV and all its descendents as the same mount.
+	if vol.IsSnapshot() && !d.usesThinpool() {
+		parentName, _, _ := api.GetParentAndSnapshotName(vol.name)
+		return OperationLockName("Mount", vol.Pool(), vol.Type(), vol.ContentType(), parentName)
+	}
+
+	return d.common.mountRefCountName(vol)
+}
+
 // FillConfig populates the storage pool's configuration file with the default values.
 func (d *lvm) FillConfig() error {
 	// Set default thin pool name if not specified.
