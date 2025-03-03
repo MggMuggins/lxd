@@ -800,11 +800,18 @@ func (d *lvm) activateVolume(vol Volume) (bool, error) {
 		return true, nil
 	}
 
+	vol.ActivationRefCountIncrement()
 	return false, nil
 }
 
 // deactivateVolume deactivates an LVM logical volume if present. Returns true if deactivated, false if not.
 func (d *lvm) deactivateVolume(vol Volume) (bool, error) {
+	refCount := vol.ActivationRefCountDecrement()
+	if refCount > 0 {
+		d.logger.Debug("Skipping deactivate as in use", logger.Ctx{"volName": vol.name, "refCount": refCount})
+		return false, ErrInUse
+	}
+
 	var volDevPath string
 
 	if d.usesThinpool() {
