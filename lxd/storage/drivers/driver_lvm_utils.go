@@ -14,7 +14,6 @@ import (
 	"github.com/canonical/lxd/lxd/locking"
 	"github.com/canonical/lxd/lxd/operations"
 	"github.com/canonical/lxd/lxd/storage/block"
-	"github.com/canonical/lxd/lxd/storage/filesystem"
 	"github.com/canonical/lxd/shared"
 	"github.com/canonical/lxd/shared/api"
 	"github.com/canonical/lxd/shared/logger"
@@ -813,15 +812,6 @@ func (d *lvm) deactivateVolume(vol Volume) (bool, error) {
 		// Use parent for non-thinpool vols as deactivating the parent volume also activates its snapshots.
 		parent, _, _ := api.GetParentAndSnapshotName(vol.Name())
 		volDevPath = d.lvmDevPath(d.config["lvm.vg_name"], vol.volType, vol.contentType, parent)
-
-		if vol.IsSnapshot() {
-			parentVol := NewVolume(d, d.name, vol.volType, vol.contentType, parent, nil, d.config)
-
-			// If parent is in use then skip deactivating non-thinpool snapshot volume as it will fail.
-			if parentVol.MountInUse() || (parentVol.contentType == ContentTypeFS && filesystem.IsMountPoint(parentVol.MountPath())) {
-				return false, nil
-			}
-		}
 	}
 
 	if shared.PathExists(volDevPath) {
