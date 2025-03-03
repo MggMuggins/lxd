@@ -222,6 +222,19 @@ func (v Volume) MountInUse() bool {
 	return refcount.Get(v.mountLockName()) > 0
 }
 
+// ActivationRefCountIncrement increments the activation ref counter for the
+// volume and returns the new value.
+// The activation ref counter keeps track of
+func (v Volume) ActivationRefCountIncrement() uint {
+	return refcount.Increment(v.driver.activationRefCountName(v), 1)
+}
+
+// ActivationRefCountDecrement decrements the activation ref counter for the
+// volume and returns the new value.
+func (v Volume) ActivationRefCountDecrement() uint {
+	return refcount.Decrement(v.driver.activationRefCountName(v), 1)
+}
+
 // EnsureMountPath creates the volume's mount path if missing, then sets the correct permission for the type.
 // If permission setting fails and the volume is a snapshot then the error is ignored as snapshots are read only.
 func (v Volume) EnsureMountPath() error {

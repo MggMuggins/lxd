@@ -56,6 +56,10 @@ func (d *common) defaultBlockVolumeSize() string {
 	return defaultBlockSize
 }
 
+func (d *common) activationRefCountName(vol Volume) string {
+	return OperationLockName("Activate", vol.Pool(), vol.Type(), vol.ContentType(), vol.Name())
+}
+
 // validatePool validates a pool config against common rules and optional driver specific rules.
 func (d *common) validatePool(config map[string]string, driverRules map[string]func(value string) error, volumeRules map[string]func(value string) error) error {
 	checkedFields := map[string]struct{}{}

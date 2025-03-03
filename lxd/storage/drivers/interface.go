@@ -96,6 +96,8 @@ type Driver interface {
 	// not mounted.
 	UnmountVolumeSnapshot(snapVol Volume, op *operations.Operation) (bool, error)
 
+	activationRefCountName(vol Volume) string
+
 	CreateVolumeSnapshot(snapVol Volume, op *operations.Operation) error
 	DeleteVolumeSnapshot(snapVol Volume, op *operations.Operation) error
 	RenameVolumeSnapshot(snapVol Volume, newSnapshotName string, op *operations.Operation) error
