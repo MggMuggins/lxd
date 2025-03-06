@@ -797,6 +797,7 @@ func (d *lvm) activateVolume(vol Volume) (bool, error) {
 
 		d.logger.Debug("Activated logical volume", logger.Ctx{"volName": vol.Name(), "dev": volDevPath})
 
+		vol.ActivationRefCountIncrement()
 		return true, nil
 	}
 
