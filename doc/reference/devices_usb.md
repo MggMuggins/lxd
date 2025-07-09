@@ -36,6 +36,17 @@ Add a `usb` device to an instance by specifying its vendor ID and product ID:
 
     lxc config device add <instance_name> <device_name> usb vendorid=<vendor_ID> productid=<product_ID>
 
-To determine the vendor ID and product ID, you can use {command}`lsusb`, for example.
+To determine the vendor ID and product ID, use {command}`lsusb`:
+
+    $ lsusb
+    Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+    ...
+    Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+    ...
+    Bus 002 Device 005: ID 1050:0402 Yubico.com Yubikey 4/5 U2F
+
+To pass the Yubikey through to instance `j1`:
+
+    lxc config device add j1 yubikey usb vendorid=1050 productid=0402
 
 See {ref}`instances-configure-devices` for more information.
